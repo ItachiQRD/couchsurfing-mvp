@@ -3,8 +3,10 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 module.exports = function(req, res, next) {
-  const token = req.header('Authorization')?.split(' ')[1];
-
+  const token = req.header('x-auth-token') || req.header('Authorization')?.replace('Bearer ', '');
+  
+  console.log('Token reçu:', token);
+  
   if (!token) {
     return res.status(401).json({ msg: 'Pas de token, autorisation refusée' });
   }

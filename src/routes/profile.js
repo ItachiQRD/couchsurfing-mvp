@@ -3,10 +3,9 @@ const router = express.Router();
 const User = require('../models/User');
 const auth = require('../middleware/auth');
 
-// @route   GET api/profile
-// @desc    Get user profile
-// @access  Private
+
 router.get('/', auth, async (req, res) => {
+  console.log('Requête reçue pour le profil. User ID:', req.user.id); // Log pour le débogage
   try {
     const user = await User.findById(req.user.id).select('-password');
     if (!user) {
@@ -19,9 +18,6 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
-// @route   PUT api/profile
-// @desc    Update user profile
-// @access  Private
 router.put('/', auth, async (req, res) => {
   const {
     bio,
