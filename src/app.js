@@ -6,7 +6,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const auth = require('./middleware/auth'); // Assurez-vous d'avoir ce middleware
-const listingRoutes = require('./routes/listing');
+const listingRoutes = require('./routes/Listing');
 const path = require('path');
 
 const app = express();
@@ -41,11 +41,11 @@ app.use('/uploads', (req, res, next) => {
 // Routes existantes
 app.use('/api/auth', require('./routes/Auth'));
 app.use('/api/profile', require('./routes/profile'));
-app.use('/api/listing', require('./routes/listing'));
+app.use('/api/listing', listingRoutes);
 app.use('/api/bookings', require('./routes/bookings'));
 app.use('/api/messages', require('./routes/messages'));
 app.use('/api/users', require('./routes/users'));
-app.use('/api/listings', listingRoutes);
+
 
 app.use(errorHandler);
 

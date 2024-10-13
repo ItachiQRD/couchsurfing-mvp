@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const listingController = require('../controllers/listingController');
 const auth = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const User = require('../models/User');
 
 // Middleware pour vérifier si l'utilisateur est un hôte
@@ -21,16 +22,11 @@ const isHost = async (req, res, next) => {
   }
 };
 
-// Création d'hébergement
-router.post('/', auth, isHost, listingController.createListing);
-
-// Obtenir tous les hébergements
-router.get('/', listingController.getAllListings);
-
-// Obtenir un hébergement spécifique
-router.get('/:id', listingController.getListing);
-
-// Rechercher des hébergements
+router.post('/', auth, upload.array('images', 5), listingController.createListing);
+router.get('/', listingController.getListings);
 router.get('/search', listingController.searchListings);
+router.get('/:id', listingController.getListingById);
+router.put('/:id', auth, upload.array('images', 5), listingController.updateListing);
+router.delete('/:id', auth, listingController.deleteListing);
 
 module.exports = router;
