@@ -3,6 +3,9 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises;
 
+const cleanFileName = (fileName) => {
+  return fileName.replace(/\s+/g, '-').toLowerCase();
+};
 
 exports.createListing = async (req, res) => {
   try {
@@ -15,7 +18,7 @@ exports.createListing = async (req, res) => {
 
     // Traitement des images
     for (const file of req.files) {
-      const filename = file.filename;
+      const cleanedFileName = cleanFileName(file.filename);
       const originalPath = path.join(__dirname, '../../uploads/images', file.filename);
       const resizedPath = path.join(__dirname, '../../uploads/resized', file.filename);
       const thumbnailPath = path.join(__dirname, '../../uploads/thumbnails', file.filename);
@@ -63,7 +66,7 @@ exports.createListing = async (req, res) => {
     res.status(201).json(savedListing);
   } catch (error) {
     console.error('Error in createListing:', error);
-    res.status(400).json({ message: error.message });
+    res.status(400).json({ message: 'Erreur lors de la récupération des listings' });
   }
 };
 
