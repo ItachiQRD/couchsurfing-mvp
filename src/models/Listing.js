@@ -54,7 +54,16 @@ const listingSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  reviews: [{
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    comment: String,
+    rating: Number
+  }],
+  latitude: Number,
+  longitude: Number,
+  houseRules: [String],
+  cancellationPolicy: String
 });
 
 // Ajout d'un index pour améliorer les performances de recherche

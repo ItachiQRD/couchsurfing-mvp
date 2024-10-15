@@ -9,7 +9,7 @@ exports.createListing = async (req, res) => {
     console.log('Received files:', req.files);
     console.log('Received body:', req.body);
 
-    const { title, description, location, maxGuests, price } = req.body;
+    const { title, description, location, latitude, longitude, maxGuests, price } = req.body;
     const images = [];
     const thumbnails = [];
 
@@ -49,6 +49,8 @@ exports.createListing = async (req, res) => {
       title,
       description,
       location,
+      latitude,
+      longitude,
       maxGuests,
       price,
       images,
