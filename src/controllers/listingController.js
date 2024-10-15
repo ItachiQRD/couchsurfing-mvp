@@ -2,10 +2,47 @@ const Listing = require('../models/Listing');
 const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises;
+
+
 exports.createListing = async (req, res) => {
   try {
+    console.log('Received files:', req.files);
+    console.log('Received body:', req.body);
+
     const { title, description, location, maxGuests, price } = req.body;
-    const images = req.files.map(file => file.path);
+    const images = [];
+    const thumbnails = [];
+
+    // Traitement des images
+    for (const file of req.files) {
+      const filename = file.filename;
+      const originalPath = path.join(__dirname, '../../uploads/images', file.filename);
+      const resizedPath = path.join(__dirname, '../../uploads/resized', file.filename);
+      const thumbnailPath = path.join(__dirname, '../../uploads/thumbnails', file.filename);
+
+      // Assurez-vous que les dossiers existent
+      await fs.mkdir(path.dirname(resizedPath), { recursive: true });
+      await fs.mkdir(path.dirname(thumbnailPath), { recursive: true });
+
+      // Redimensionner l'image
+      await sharp(originalPath)
+        .resize(800, 600, { fit: 'inside', withoutEnlargement: true })
+        .toFile(resizedPath);
+
+      // Créer la miniature
+      await sharp(originalPath)
+        .resize(200, 200, { fit: 'cover' })
+        .toFile(thumbnailPath);
+
+      images.push(`/resized/${file.filename}`);
+      thumbnails.push(` /thumbnails/${file.filename}`);
+
+      // Optionnel : supprimer l'image originale
+      // await fs.unlink(originalPath);
+    }
+
+    console.log('Processed image paths:', images);
+    console.log('Processed thumbnail paths:', thumbnails);
 
     const newListing = new Listing({
       host: req.user.id,
@@ -14,12 +51,16 @@ exports.createListing = async (req, res) => {
       location,
       maxGuests,
       price,
-      images
+      images,
+      thumbnails
     });
 
-    await newListing.save();
-    res.status(201).json(newListing);
+    const savedListing = await newListing.save();
+    console.log('Saved listing:', savedListing);
+
+    res.status(201).json(savedListing);
   } catch (error) {
+    console.error('Error in createListing:', error);
     res.status(400).json({ message: error.message });
   }
 };

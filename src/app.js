@@ -36,7 +36,7 @@ app.get('/api/auth/verify', auth, (req, res) => {
 app.use('/uploads', (req, res, next) => {
   console.log('Tentative d\'accès au fichier:', req.url);
   next();
-}, express.static(path.join(__dirname, '..', 'uploads')));
+}, express.static(path.join(__dirname, '../uploads')));
 
 // Routes existantes
 app.use('/api/auth', require('./routes/Auth'));
