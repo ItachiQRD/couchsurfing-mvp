@@ -24,6 +24,7 @@ const isHost = async (req, res, next) => {
 
 router.post('/', auth, upload.array('images', 5), listingController.createListing);
 router.get('/', listingController.getListings);
+router.get('/user', auth, listingController.getUserListings);
 router.get('/search', listingController.searchListings);
 router.get('/:id', listingController.getListingById);
 router.put('/:id', auth, upload.array('images', 5), listingController.updateListing);

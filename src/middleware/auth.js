@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 module.exports = function(req, res, next) {
   const token = req.header('x-auth-token') || req.header('Authorization')?.replace('Bearer ', '');
   
-  console.log('Token reçu:', token);
+  console.log('Token reçu:');
   
   if (!token) {
     return res.status(401).json({ msg: 'Pas de token, autorisation refusée' });

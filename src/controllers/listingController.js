@@ -3,22 +3,27 @@ const sharp = require('sharp');
 const path = require('path');
 const fs = require('fs').promises;
 
-const cleanFileName = (fileName) => {
-  return fileName.replace(/\s+/g, '-').toLowerCase();
-};
 
 exports.createListing = async (req, res) => {
   try {
     console.log('Received files:', req.files);
     console.log('Received body:', req.body);
 
-    const { title, description, location, latitude, longitude, maxGuests, price } = req.body;
+    const { title, description,amenities, location, latitude, longitude, maxGuests, price, availabilityFrom, availabilityTo } = req.body;
+    
+    const parsedLatitude = latitude ? (latitude === 'null' ? null : parseFloat(latitude)) : null;
+    const parsedLongitude = longitude ? (longitude === 'null' ? null : parseFloat(longitude)) : null;
+
+
+    if ((latitude !== 'null' && isNaN(parsedLatitude)) || (longitude !== 'null' && isNaN(parsedLongitude))) {
+      return res.status(400).json({ message: "La latitude et la longitude doivent être des nombres valides ou null." });
+    }
+    
     const images = [];
     const thumbnails = [];
 
     // Traitement des images
     for (const file of req.files) {
-      const cleanedFileName = cleanFileName(file.filename);
       const originalPath = path.join(__dirname, '../../uploads/images', file.filename);
       const resizedPath = path.join(__dirname, '../../uploads/resized', file.filename);
       const thumbnailPath = path.join(__dirname, '../../uploads/thumbnails', file.filename);
@@ -37,27 +42,27 @@ exports.createListing = async (req, res) => {
         .resize(200, 200, { fit: 'cover' })
         .toFile(thumbnailPath);
 
-      images.push(`/resized/${file.filename}`);
-      thumbnails.push(` /thumbnails/${file.filename}`);
+      images.push(`resized/${file.filename}`);
+      thumbnails.push(`thumbnails/${file.filename}`);
 
-      // Optionnel : supprimer l'image originale
-      // await fs.unlink(originalPath);
     }
-
-    console.log('Processed image paths:', images);
-    console.log('Processed thumbnail paths:', thumbnails);
 
     const newListing = new Listing({
       host: req.user.id,
       title,
       description,
       location,
-      latitude,
-      longitude,
-      maxGuests,
-      price,
+      latitude: parsedLatitude,
+      longitude: parsedLongitude,
+      maxGuests: parseInt(maxGuests),
+      amenities: amenities,
+      price: parseFloat(price),
       images,
-      thumbnails
+      thumbnails,
+      availability: [{
+        from: new Date(availabilityFrom),
+        to: new Date(availabilityTo)
+      }]
     });
 
     const savedListing = await newListing.save();
@@ -73,6 +78,15 @@ exports.createListing = async (req, res) => {
 exports.getListings = async (req, res) => {
   try {
     const listings = await Listing.find();
+    res.json(listings);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.getUserListings = async (req, res) => {
+  try {
+    const listings = await Listing.find({ host: req.user.id });
     res.json(listings);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -159,3 +173,4 @@ exports.deleteListing = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+

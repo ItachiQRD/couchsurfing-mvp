@@ -60,8 +60,8 @@ const listingSchema = new mongoose.Schema({
     comment: String,
     rating: Number
   }],
-  latitude: Number,
-  longitude: Number,
+  latitude: { type: Number, required: false, default:null },
+  longitude: { type: Number, required: false, default:null },
   houseRules: [String],
   cancellationPolicy: String
 });
